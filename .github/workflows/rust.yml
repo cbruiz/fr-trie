@@ -1,0 +1,31 @@
+name: Rust
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build
+      run: cargo build --verbose
+    - name: Run tests
+      run: cargo test --verbose
+    - name: Rust Code Coverage
+      uses: Swatinem/fucov@v1.0.0
+      with:
+        # Arguments for the `cargo test` command. Defaults to `--workspace --all-features`.
+        args: --all-features
+        # The desired output format. One of `lcov`, `json`, `html` or `profdata`. Defaults to `lcov`.
+        output-format: lcov
+        # The desired output filename. Defaults to `coverage/coverage.$ext`, depending on the chosen `output-format`.
+        
