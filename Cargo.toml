@@ -1,6 +1,6 @@
 [package]
 name = "fr-trie"
-version = "0.0.1"
+version = "0.0.2"
 edition = "2018"
 authors = ["Carlos Barrales <cbruiz@gmail.com>"]
 description = "Fuzzy Radix Trie"
