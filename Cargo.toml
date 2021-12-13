@@ -5,7 +5,7 @@ edition = "2018"
 authors = ["Carlos Barrales <cbruiz@gmail.com>"]
 description = "Fuzzy Radix Trie"
 
-categories = ["data-structures", "collections"]
+categories = ["data-structures", "compression"]
 documentation = "https://docs.rs/fr-trie"
 keywords = ["trie", "fuzzy", "succint"]
 license = "MIT"
