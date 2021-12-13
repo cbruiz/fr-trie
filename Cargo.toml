@@ -1,0 +1,21 @@
+[package]
+name = "fr-trie"
+version = "0.0.1"
+edition = "2018"
+authors = ["Carlos Barrales <cbruiz@gmail.com>"]
+description = "Fuzzy Radix Trie"
+
+categories = ["data-structures", "collections"]
+documentation = "https://docs.rs/fr-trie"
+keywords = ["trie", "fuzzy", "succint"]
+license = "MIT"
+readme = "./README.md"
+repository = "https://github.com/cbruiz/fr-trie"
+
+[dependencies]
+bitflags = "1.3.2"
+serde = {version = "1", features = ["derive", "rc"]}
+
+[dev-dependencies]
+serde_json = "1.0.71"
+bincode = "1.3.3"
