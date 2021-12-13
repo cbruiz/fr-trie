@@ -1,6 +1,7 @@
 # fr-trie
 
-[![Rust](https://github.com/cbruiz/fr-trie/actions/workflows/rust.yml/badge.svg)](https://github.com/cbruiz/fr-trie/actions/workflows/rust.yml)
+[![CI](https://github.com/cbruiz/fr-trie/actions/workflows/rust.yml/badge.svg)](https://github.com/cbruiz/fr-trie/actions/workflows/rust.yml)
+[![CodeCov](https://codecov.io/gh/cbruiz/fr-trie/branch/main/graph/badge.svg)](https://codecov.io/gh/cbruiz/fr-trie/branch/main)
 [![](https://img.shields.io/crates/v/fr-trie.svg)](https://crates.io/crates/fr-trie)
 
 [![](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)

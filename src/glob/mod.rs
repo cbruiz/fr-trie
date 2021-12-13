@@ -20,26 +20,7 @@ impl MachineInstance {
         match (&self.state, ev) {
             (State::Accepting | State::Expecting, Event::EndOfStream) => {
                 if self.at_end() {
-                    match &self.state {
-                        State::Accepting => {
-                            self.state = State::Accepted;
-                        }
-                        State::Expecting => {
-                            self.state = State::Accepted;
-                        }
-                        State::Accepted => {
-                            self.state = State::Accepted;
-                        }
-                        State::Rejected => {
-                            self.state = State::Rejected;
-                        }
-                        State::Beyond => {
-                            self.state = State::Beyond;
-                        }
-                        State::Failure(msg) => {
-                            self.state = State::Failure(msg.clone());
-                        }
-                    }
+                    self.state = State::Accepted
                 }
                 else {
                     match self.look_ahead() {

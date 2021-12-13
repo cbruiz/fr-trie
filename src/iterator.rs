@@ -22,7 +22,7 @@ impl <'a, K: KeyPrefix + Clone, V: Clone, M: PushdownStateMachine + Clone> TrieI
 
     ///! Creates a new iterator
     pub fn new(root: &'a RFRNode<K, V>, match_key: &K) -> Self {
-        let it = Self {
+        Self {
             stack: vec![LookupState {
                 node: root,
                 current_child_idx: 0,
@@ -30,8 +30,7 @@ impl <'a, K: KeyPrefix + Clone, V: Clone, M: PushdownStateMachine + Clone> TrieI
             }],
             match_key_chars: match_key.key_chars(),
             matcher_sm: M::new(),
-        };
-        it
+        }
     }
 }
 
