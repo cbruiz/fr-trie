@@ -1,8 +1,9 @@
 //! The Trie internal node implementation
+use std::fmt::Debug;
 use std::marker::PhantomData;
 use std::slice::Iter;
 use serde::{Serialize, Deserialize};
-use crate::key::{TrieKey, KeyPrefix};
+use crate::key::{TrieKey, KeyPrefix, ValueMerge};
 use crate::iterator::{TrieIterator};
 use crate::matcher::PushdownStateMachine;
 
@@ -164,6 +165,21 @@ impl<K, V> RFRNode<K, V> where K: KeyPrefix + Clone, V: Clone {
             return Some(value);
         }
         None
+    }
+
+    pub fn get_merge<M: PushdownStateMachine + Clone>(&self, key: &K) -> Option<V>
+        where V: ValueMerge + Debug
+    {
+        let mut acc_value = None;
+        for value in self.lookup::<M>(key) {
+            if acc_value.is_none() {
+                acc_value.replace(value);
+            }
+            else {
+                acc_value.as_mut().unwrap().merge_mut(&value);
+            }
+        }
+        acc_value
     }
 
     #[inline]

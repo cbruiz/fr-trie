@@ -92,6 +92,69 @@ mod tests {
 
         let x = trie.get::<GlobMatcher>(&Acl::new("aaaabb"));
         assert!(x.is_none());
+
+        let mut trie = AclTrie::new();
+        trie.insert(Acl::new("abc"), Permissions::WRITE);
+        trie.insert(Acl::new("a*"), Permissions::READ);
+        trie.insert(Acl::new("ax*"), Permissions::CREATE);
+
+        let x = trie.get_merge::<GlobMatcher>(&Acl::new("axy"));
+        assert!(x.is_some());
+        assert_eq!(Permissions::READ | Permissions::CREATE, x.unwrap());
+
+        let mut trie = AclTrie::new();
+        trie.insert(Acl::new("/path/*"), Permissions::READ);
+        trie.insert(Acl::new("/path/to/resource"), Permissions::WRITE);
+
+        // Multiget example 1
+        let result = trie.get_merge::<GlobMatcher>(&Acl::new("/path/to/anything"));
+        if let Some(value) = result {
+            if value == Permissions::READ {
+                println!("Expecting /path/* wilcard key is accessed");
+            }
+        }
+
+        // Multiget example 2
+        let result = trie.get_merge::<GlobMatcher>(&Acl::new("/path/to/anything"));
+        if let Some(value) = result {
+            if value == (Permissions::READ | Permissions::WRITE) {
+                println!("Expecting both /path/* wilcard key and /path/to/resource is accessed");
+            }
+        }
+
+        // Dump trie structure
+        trie.foreach(|tup| {
+            let indent= String::from_utf8(vec![b' '; tup.0 *3]).unwrap();
+            println!("{} {} = {:?}", indent, tup.1, tup.2);
+        });
+    }
+
+    #[test]
+    fn bugfix_test() {
+
+        let mut trie = AclTrie::new();
+        trie.insert(Acl::new("/path/*"), Permissions::READ);
+        trie.insert(Acl::new("/path/to/resource"), Permissions::WRITE);
+
+        let x = trie.get_merge::<GlobMatcher>(&Acl::new("/path/to/resourc"));
+        assert!(x.is_some());
+        assert_eq!(Permissions::READ, x.unwrap());
+
+        let mut trie = AclTrie::new();
+        trie.insert(Acl::new("abc"), Permissions::WRITE);
+        trie.insert(Acl::new("a*"), Permissions::READ);
+
+        let x = trie.get::<GlobMatcher>(&Acl::new("ax"));
+        assert!(x.is_some());
+        assert_eq!(Permissions::READ, x.unwrap());
+
+        let mut trie = AclTrie::new();
+        trie.insert(Acl::new("abc"), Permissions::WRITE);
+        trie.insert(Acl::new("a*"), Permissions::READ);
+
+        let x = trie.get::<GlobMatcher>(&Acl::new("a/x"));
+        assert!(x.is_some());
+        assert_eq!(Permissions::READ, x.unwrap());
     }
 
     #[test]

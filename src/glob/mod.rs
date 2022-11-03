@@ -20,7 +20,26 @@ impl MachineInstance {
         match (&self.state, ev) {
             (State::Accepting | State::Expecting, Event::EndOfStream) => {
                 if self.at_end() {
-                    self.state = State::Accepted
+                    match &self.state {
+                        State::Accepting => {
+                            self.state = State::Accepted;
+                        }
+                        State::Expecting => {
+                            self.state = State::Accepted;
+                        }
+                        State::Accepted => {
+                            self.state = State::Accepted;
+                        }
+                        State::Rejected => {
+                            self.state = State::Rejected;
+                        }
+                        State::Beyond => {
+                            self.state = State::Beyond;
+                        }
+                        State::Failure(msg) => {
+                            self.state = State::Failure(msg.clone());
+                        }
+                    }
                 }
                 else {
                     match self.look_ahead() {
@@ -144,7 +163,7 @@ impl MachineInstance {
             }
             Some(current_glob) => {
                 if self.glob_idx + 1 >= self.tokens.len() {
-                    if self.glob_char_idx + 1 >= current_glob.sequence.len() {
+                    if self.glob_char_idx + 1 > current_glob.sequence.len() {
                         return true;
                     }
                     else {
@@ -236,7 +255,6 @@ impl PushdownStateMachine for GlobMatcher {
     #[inline]
     fn step_out(&mut self) {
         let _k = self.stack.pop();
-        //println!("STEP OUT FROM KEY ({:?})", k.as_ref().unwrap().borrow().tokens);
     }
 
     #[inline]

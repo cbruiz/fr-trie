@@ -22,7 +22,7 @@ impl <'a, K: KeyPrefix + Clone, V: Clone, M: PushdownStateMachine + Clone> TrieI
 
     ///! Creates a new iterator
     pub fn new(root: &'a RFRNode<K, V>, match_key: &K) -> Self {
-        Self {
+        let it = Self {
             stack: vec![LookupState {
                 node: root,
                 current_child_idx: 0,
@@ -30,7 +30,8 @@ impl <'a, K: KeyPrefix + Clone, V: Clone, M: PushdownStateMachine + Clone> TrieI
             }],
             match_key_chars: match_key.key_chars(),
             matcher_sm: M::new(),
-        }
+        };
+        it
     }
 }
 
@@ -65,10 +66,10 @@ impl <'a, K: 'a + KeyPrefix + Clone, V: 'a + Clone, M: PushdownStateMachine + Cl
                         }
                     }
                     if ls.key_char_pos + advanced == self.match_key_chars.len() {
-                        
                         if !self.matcher_sm.is_sink() { // Flush (be always greedy)
                             self.matcher_sm.feed(Event::EndOfStream);
                         }
+
                     }
                     match self.matcher_sm.state() {
                         State::Accepting | State::Expecting => {
@@ -79,6 +80,12 @@ impl <'a, K: 'a + KeyPrefix + Clone, V: 'a + Clone, M: PushdownStateMachine + Cl
                             });
                         }
                         State::Accepted => {
+                            self.matcher_sm.step_out();
+                            self.stack.push(LookupState {
+                                node: ls.node,
+                                current_child_idx: ls.current_child_idx + 1,
+                                key_char_pos: ls.key_char_pos
+                            });
                             return match &child.value {
                                 None => {
                                     None
@@ -100,8 +107,7 @@ impl <'a, K: 'a + KeyPrefix + Clone, V: 'a + Clone, M: PushdownStateMachine + Cl
                             return None // Won't find anything beyond
                         }
                         State::Failure(reason) => {
-                            println!("Internal error: {}", reason);
-                            return None
+                            panic!("Internal error: {}", reason);
                         }
                     }
                 }

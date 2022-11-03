@@ -1,9 +1,10 @@
 //! The Trie trait(s)
+use std::fmt::Debug;
 use std::marker::PhantomData;
 use std::slice::Iter;
 use serde::{Serialize, Deserialize};
 use crate::node::RFRNode;
-use crate::key::{TrieKey, KeyPrefix};
+use crate::key::{TrieKey, KeyPrefix, ValueMerge};
 use crate::matcher::PushdownStateMachine;
 
 
@@ -41,6 +42,13 @@ impl<K: KeyPrefix + Clone, V: Clone> Trie<K, V>
     #[inline]
     pub fn get<M: PushdownStateMachine + Clone>(&self, key: &K) -> Option<V>  {
         self.node.get::<M>(key)
+    }
+
+    #[inline]
+    pub fn get_merge<M: PushdownStateMachine + Clone>(&self, key: &K) -> Option<V>
+    where V: ValueMerge + Debug
+    {
+        self.node.get_merge::<M>(key)
     }
 
     #[inline]

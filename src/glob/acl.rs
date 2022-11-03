@@ -1,10 +1,11 @@
 //! A specific Trie implementation for Access Control Lists supporting (limited) glob matching
 use std::fmt::{Display, Formatter};
+use std::ops::{BitOr, BitOrAssign};
 use std::sync::Arc;
 use bitflags::bitflags;
 use serde::{Serialize, Deserialize};
 use crate::trie::Trie;
-use crate::key::{KeyPrefix};
+use crate::key::{KeyPrefix, ValueMerge};
 use crate::matcher::{MatchType, StateSequence};
 
 #[derive(Clone, PartialEq, Serialize, Deserialize)]
@@ -75,6 +76,9 @@ impl KeyPrefix for Acl {
                     }));
                     next_state = MatchType::AnyOr;
                 }
+                else {
+                    next_state = MatchType::AnyOr;
+                }
                 buff = Vec::new();
             }
             else {
@@ -102,11 +106,24 @@ impl KeyPrefix for Acl {
 bitflags! {
     #[derive(Default, Serialize, Deserialize)]
     pub struct Permissions: u8 {
-        const READ = 0b00000001;
-        const WRITE = 0b00000010;
-        const CREATE = 0b00000100;
-        const DELETE = 0b00001000;
-        const OWNER = Self::READ.bits | Self::WRITE.bits | Self::CREATE.bits | Self::DELETE.bits;
+        const READ        = 0b00000001;
+        const WRITE       = 0b00000010;
+        const CREATE      = 0b00000100;
+        const DELETE      = 0b00001000;
+        const WATCH       = 0b00010000;
+        const RESERVED_1  = 0b00100000;
+        const RESERVED_2  = 0b01000000;
+        const OWNER       = 0b10000000 | Self::READ.bits | Self::WRITE.bits | Self::CREATE.bits | Self::DELETE.bits | Self::WATCH.bits;
+    }
+}
+
+impl ValueMerge for Permissions {
+    fn merge(&self, other: &Self) -> Self {
+        self.bitor(*other)
+    }
+
+    fn merge_mut(&mut self, other: &Self) {
+        self.bitor_assign(*other)
     }
 }
 

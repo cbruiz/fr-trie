@@ -108,3 +108,9 @@ impl KeyPrefix for String {
         self[index..].to_string()
     }
 }
+
+pub trait ValueMerge {
+    fn merge(&self, other: &Self) -> Self;
+
+    fn merge_mut(&mut self, other: &Self);
+}
