@@ -115,7 +115,7 @@ mod tests {
         }
 
         // Multiget example 2
-        let result = trie.get_merge::<GlobMatcher>(&Acl::new("/path/to/anything"));
+        let result = trie.get_merge::<GlobMatcher>(&Acl::new("/path/to/resource"));
         if let Some(value) = result {
             if value == (Permissions::READ | Permissions::WRITE) {
                 println!("Expecting both /path/* wilcard key and /path/to/resource is accessed");
@@ -136,9 +136,17 @@ mod tests {
         trie.insert(Acl::new("/path/*"), Permissions::READ);
         trie.insert(Acl::new("/path/to/resource"), Permissions::WRITE);
 
+        let x = trie.get_merge::<GlobMatcher>(&Acl::new("/path/other"));
+        assert!(x.is_some());
+        assert_eq!(Permissions::READ, x.unwrap());
+
         let x = trie.get_merge::<GlobMatcher>(&Acl::new("/path/to/resourc"));
         assert!(x.is_some());
         assert_eq!(Permissions::READ, x.unwrap());
+
+        let x = trie.get_merge::<GlobMatcher>(&Acl::new("/path/to/resource"));
+        assert!(x.is_some());
+        assert_eq!(Permissions::READ | Permissions::WRITE, x.unwrap());
 
         let mut trie = AclTrie::new();
         trie.insert(Acl::new("abc"), Permissions::WRITE);
